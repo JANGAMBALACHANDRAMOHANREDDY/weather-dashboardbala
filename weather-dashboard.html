@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f8ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      text-align: center;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      width: 80%;
+      max-width: 600px;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+    .input-container input {
+      padding: 10px;
+      width: 60%;
+      font-size: 1em;
+    }
+    .input-container button {
+      padding: 10px;
+      font-size: 1em;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .input-container button:hover {
+      background-color: #45a049;
+    }
+    .weather-info {
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+    .weather-info p {
+      margin: 5px 0;
+    }
+    .city-card {
+      padding: 10px;
+      margin-top: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .city-card img {
+      width: 50px;
+    }
+    .city-card h3 {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Weather Dashboard</h1>
+    <div class="input-container">
+      <input type="text" id="city-input" placeholder="Enter city name">
+      <button id="get-weather-btn">Get Weather</button>
+    </div>
+    <div class="weather-info" id="weather-info">
+      <!-- Weather details will be shown here -->
+    </div>
+  </div>
+
+  <script>
+    const apiKey = 'fc5403ccbf2e37b4f2cd7f7455086981'; // Replace with your OpenWeatherMap API key
+
+    // Function to fetch weather data from OpenWeatherMap API
+    function fetchWeather(city) {
+      const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          if (data.cod === '404') {
+            alert(`City "${city}" not found!`);
+          } else {
+            // Display weather details for the city
+            const weatherDetails = `
+              <div class="city-card">
+                <h3>${data.name}, ${data.sys.country}</h3>
+                <p>Temperature: ${data.main.temp}°C</p>
+                <p>Weather: ${data.weather[0].description}</p>
+                <p>Humidity: ${data.main.humidity}%</p>
+                <p>Wind Speed: ${data.wind.speed} m/s</p>
+                <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="Weather Icon">
+              </div>
+            `;
+            document.getElementById('weather-info').innerHTML = weatherDetails;
+          }
+        })
+        .catch(error => {
+          alert('Error fetching data. Please try again.');
+        });
+    }
+
+    // Event listener for the "Get Weather" button
+    document.getElementById('get-weather-btn').addEventListener('click', () => {
+      const city = document.getElementById('city-input').value;
+      if (city) {
+        fetchWeather(city);
+        document.getElementById('city-input').value = ''; // Clear input after fetching
+      } else {
+        alert('Please enter a city name!');
+      }
+    });
+  </script>
+</body>
+</html>
