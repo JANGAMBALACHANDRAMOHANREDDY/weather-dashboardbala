@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input {
+            padding: 10px;
+            width: 70%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .results {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .weather-card {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+            width: 200px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .weather-card img {
+            width: 50px;
+        }
+
+        .weather-card h3 {
+            margin: 10px 0;
+        }
+
+        .weather-card p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Weather Dashboard</h1>
+    <form id="weatherForm">
+        <input type="text" id="cityInput" placeholder="Enter a city or leave blank for default cities" />
+        <button type="submit">Get Weather</button>
+    </form>
+    <div id="weatherResults" class="results"></div>
+
+    <script>
+        const API_KEY = 'your_openweathermap_api_key'; // Replace with your API key
+        const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
+
+        const defaultCities = ['Hyderabad', 'Chennai', 'Bengaluru']; // Default cities
+        const weatherResults = document.getElementById('weatherResults');
+        const weatherForm = document.getElementById('weatherForm');
+        const cityInput = document.getElementById('cityInput');
+
+        // Function to fetch and display weather for a single city
+        async function getWeather(city) {
+            try {
+                const response = await fetch(`${BASE_URL}?q=${city}&appid=${API_KEY}&units=metric`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const weatherCard = `
+                        <div class="weather-card">
+                            <h3>${data.name}</h3>
+                            <img src="http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="Weather Icon">
+                            <p>${data.main.temp}°C</p>
+                            <p>${data.weather[0].description}</p>
+                        </div>
+                    `;
+                    weatherResults.innerHTML += weatherCard;
+                } else {
+                    weatherResults.innerHTML += `
+                        <div class="weather-card">
+                            <h3>${city}</h3>
+                            <p>City not found</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                weatherResults.innerHTML += `
+                    <div class="weather-card">
+                        <h3>${city}</h3>
+                        <p>Error fetching data</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Function to display weather for default cities
+        async function loadDefaultCities() {
+            weatherResults.innerHTML = ''; // Clear previous results
+            for (const city of defaultCities) {
+                await getWeather(city); // Fetch and display weather for each city
+            }
+        }
+
+        // Event listener for form submission
+        weatherForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const city = cityInput.value.trim();
+            weatherResults.innerHTML = ''; // Clear previous results
+            if (city) {
+                await getWeather(city); // Fetch and display weather for the entered city
+            } else {
+                loadDefaultCities(); // Load default cities if input is empty
+            }
+            cityInput.value = ''; // Clear the input field
+        });
+
+        // Load default cities on page load
+        window.onload = loadDefaultCities;
+    </script>
+</body>
+</html>
